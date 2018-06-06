@@ -4,12 +4,12 @@ using uPLibrary.Networking.M2Mqtt.Messages;
 
 namespace AllThingsTalk
 {
-    public class AssetState
+    public class DeviceState
     {
-        public string Id { get; set; }
+        public string Id { get; }
         public State State { get; }
 
-        internal AssetState(MqttMsgPublishEventArgs args)
+        public DeviceState(MqttMsgPublishEventArgs args)
         {
             var parts = args.Topic.Split(new char[] { '/' });
             Id = parts[3];
@@ -31,25 +31,5 @@ namespace AllThingsTalk
 
             State = value.ToObject<State>();
         }
-
-        internal AssetState(JToken value)
-        {
-            State = new State
-            {
-                Value = value,
-                At = DateTime.Now
-            };
-        }
-
-        internal AssetState()
-        {
-
-        }
-    }
-
-    public class State
-    {
-        public JToken Value { get; set; }
-        public DateTime At { get; set; }
     }
 }
