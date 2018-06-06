@@ -6,9 +6,12 @@ namespace AllThingsTalk
 {
     public class AssetState
     {
+        // TODO: take this out. It is asset id.
         public string Id { get; set; }
+
         public State State { get; }
 
+        // TODO: take this out
         internal AssetState(MqttMsgPublishEventArgs args)
         {
             var parts = args.Topic.Split(new char[] { '/' });

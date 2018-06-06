@@ -14,8 +14,8 @@ namespace AllThingsTalk
             Assets = new List<Asset>();
         }
 
-        internal event EventHandler <AssetState> OnPublishState;
-        internal event EventHandler <Asset> OnCreateAsset;
+        internal event EventHandler<AssetState> OnPublishState;
+        internal event EventHandler<Asset> OnCreateAsset;
 
         /********** -----Public methods----- **********/
 
@@ -24,33 +24,38 @@ namespace AllThingsTalk
             var asset = GetAssetFromDevice<T>(name);
 
             asset.OnPublishState += PublishAssetState;
-            if (asset.Is == null)
-            {
-                asset.Is = "Sensor";
-                OnCreateAsset?.Invoke(this,asset);
-            }
+            if (asset.Is != null)
+                return asset;
 
+            asset.Is = "Sensor";
+            OnCreateAsset?.Invoke(this, asset);
             return asset;
+
         }
 
         public Asset CreateActuator<T>(string name)
         {
-            return new Asset(name);
+            var asset = GetAssetFromDevice<T>(name);
+
+            if (asset.Is != null)
+                return asset;
+
+            asset.Is = "Actuator";
+            OnCreateAsset?.Invoke(this, asset);
+            return asset;
         }
 
         public Asset CreateVirtual<T>(string name)
         {
-            return new Asset(name);
-        }
+            var asset = GetAssetFromDevice<T>(name);
 
-        public void Subscribe(SubscriptionType type)
-        {
-            //_client.SubscribeToTopics(GetTopics());
-        }
+            asset.OnPublishState += PublishAssetState;
+            if (asset.Is != null)
+                return asset;
 
-        private void CreateAsset()
-        {
-
+            asset.Is = "Virtual";
+            OnCreateAsset?.Invoke(this, asset);
+            return asset;
         }
 
         /********** -----Private methods----- **********/
@@ -62,8 +67,6 @@ namespace AllThingsTalk
                 if (asset.Name == name)
                     return asset;
             }
-
-            var newAsset = new Asset(name);
 
             var profile = new Profile();
 
@@ -86,7 +89,11 @@ namespace AllThingsTalk
                     break;
             }
 
-            newAsset.Profile = profile;
+            var newAsset = new Asset(name)
+            {
+                DeviceId = Id,
+                Profile = profile
+            };
 
             return newAsset;
         }

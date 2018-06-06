@@ -97,6 +97,7 @@ namespace AllThingsTalk
                         var contentTask = resContent.ReadAsStringAsync();
                         result.EnsureSuccessStatusCode();
                         var createdAsset = JsonConvert.DeserializeObject<Asset>(contentTask.Result);
+                        // TODO: update asset id
                         Logger?.Info(createdAsset.Id);
                     }
                 }
