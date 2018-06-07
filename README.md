@@ -59,4 +59,4 @@ Sensor is added by:
 ```C#
 var sensor = device.CreateSensor<int>("<sensorName>");
 ```
-where <int> defines the data type and <sensorName> is the identifier that has to be the same as the one used in maker, if you want to attach to an existing sensor.
+where `int` defines the data type and `sensorName` is the identifier that has to be the same as the one used in maker, if you want to attach to an existing sensor.
