@@ -2,6 +2,13 @@
 
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <Version>5.0.1</Version>
+    <RepositoryUrl>https://github.com/allthingstalk/C-Sharp-SDK</RepositoryUrl>
+    <Description>C# client for connecting to AllThingsTalk platform</Description>
+    <Copyright />
+    <PackageTags>C#, iot, allthingstalk, maker, internet of things,</PackageTags>
+    <AssemblyVersion>5.0.1.0</AssemblyVersion>
   </PropertyGroup>
 
   <ItemGroup>

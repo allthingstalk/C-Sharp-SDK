@@ -1,43 +1,85 @@
-﻿using Newtonsoft.Json.Linq;
-using System;
+﻿/*
+*   /_\ | | |_   _| |_ (_)_ _  __ _ __|_   _|_ _| | |__ / __|   \| |/ /
+*  / _ \| | | | | | ' \| | ' \/ _` (_-< | |/ _` | | / / \__ \ |) | ' <
+* /_/ \_\_|_| |_| |_||_|_|_||_\__, /__/ |_|\__,_|_|_\_\ |___/___/|_|\_\
+*                             |___/
+*
+* Copyright 2018 AllThingsTalk
+*
+* Licensed under the Apache License, Version 2.0 (the "License");
+* you may not use this file except in compliance with the License.
+* You may obtain a copy of the License at
+*
+* http://www.apache.org/licenses/LICENSE-2.0
+*
+* Unless required by applicable law or agreed to in writing, software
+* distributed under the License is distributed on an "AS IS" BASIS,
+* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+* See the License for the specific language governing permissions and
+* limitations under the License.
+*/
 
 namespace AllThingsTalk
 {
+    using System;
+    using System.Runtime.Serialization;
+    using Newtonsoft.Json.Linq;
+
+    /// <summary>
+    /// Asset
+    /// </summary>
+    [DataContract]
     public class Asset
     {
-        public string Id { get; set; }
-        public string DeviceId { get; set; }
-        public string Name { get; set; }
-        public string Title { get; set; }
-        public string Description { get; set; }
-        public string Is { get; set; }
-        public Profile Profile { get; set; }
-        public AssetState State { get; set; }
+        [DataMember]
+        public string Id { get; internal set; }
 
-        internal Asset(string name)
+        [DataMember]
+        public string DeviceId { get; internal set; }
+
+        [DataMember]
+        public string Name { get; internal set; }
+
+        [DataMember]
+        public string Title { get; internal set; }
+
+        [DataMember]
+        public string Description { get; internal set; }
+
+        [DataMember]
+        public string Is { get; internal set; }
+
+        [DataMember]
+        public Profile Profile { get; internal set; }
+
+        [DataMember]
+        public AssetState State { get; internal set; }
+
+        internal Asset(string name, string deviceId, Profile profile, string kind)
         {
             this.Name = name;
+            this.DeviceId = deviceId;
+            this.Profile = profile;
+            this.Is = kind;
         }
 
         internal Asset()
         {
-
         }
 
-        internal event EventHandler<AssetState> OnPublishState;
-        public event EventHandler<AssetState> OnCommand;
+        internal event EventHandler<Asset> OnPublishState;
+        public event EventHandler<Asset> OnCommand;
 
         public void PublishState(object value)
         {
             this.State = new AssetState(JToken.FromObject(value));
-            State.Id = Name;
-            OnPublishState?.Invoke(this, State);
+            OnPublishState?.Invoke(this, this);
         }
 
         internal void OnAssetState(AssetState state)
         {
             State = state;
-            OnCommand?.Invoke(this, State);
+            OnCommand?.Invoke(this, this);
         }
     }
 

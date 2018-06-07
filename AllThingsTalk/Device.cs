@@ -1,72 +1,70 @@
-﻿using System;
-using System.Collections.Generic;
+﻿/*
+*   /_\ | | |_   _| |_ (_)_ _  __ _ __|_   _|_ _| | |__ / __|   \| |/ /
+*  / _ \| | | | | | ' \| | ' \/ _` (_-< | |/ _` | | / / \__ \ |) | ' <
+* /_/ \_\_|_| |_| |_||_|_|_||_\__, /__/ |_|\__,_|_|_\_\ |___/___/|_|\_\
+*                             |___/
+*
+* Copyright 2018 AllThingsTalk
+*
+* Licensed under the Apache License, Version 2.0 (the "License");
+* you may not use this file except in compliance with the License.
+* You may obtain a copy of the License at
+*
+* http://www.apache.org/licenses/LICENSE-2.0
+*
+* Unless required by applicable law or agreed to in writing, software
+* distributed under the License is distributed on an "AS IS" BASIS,
+* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+* See the License for the specific language governing permissions and
+* limitations under the License.
+*/
 
 namespace AllThingsTalk
 {
+    using System;
+    using System.Collections.Generic;
+
     public class Device
     {
-        public string Id { get; }
-        public List<Asset> Assets { get; set; }
-
         internal Device(string deviceId)
         {
             Id = deviceId;
-            Assets = new List<Asset>();
+            Assets = new Dictionary<string, Asset>();
         }
 
-        internal event EventHandler<AssetState> OnPublishState;
+        public string Id { get; }
+
+        public Dictionary<string, Asset> Assets { get; set; }
+
+        internal event EventHandler<Asset> OnPublishState;
         internal event EventHandler<Asset> OnCreateAsset;
 
         /********** -----Public methods----- **********/
 
         public Asset CreateSensor<T>(string name)
         {
-            var asset = GetAssetFromDevice<T>(name);
-
-            asset.OnPublishState += PublishAssetState;
-            if (asset.Is != null)
-                return asset;
-
-            asset.Is = "Sensor";
-            OnCreateAsset?.Invoke(this, asset);
+            var asset = GetAssetFromDevice<T>(name, "sensor");
             return asset;
-
         }
 
         public Asset CreateActuator<T>(string name)
         {
-            var asset = GetAssetFromDevice<T>(name);
-
-            if (asset.Is != null)
-                return asset;
-
-            asset.Is = "Actuator";
-            OnCreateAsset?.Invoke(this, asset);
+            var asset = GetAssetFromDevice<T>(name, "actuator");
             return asset;
         }
 
         public Asset CreateVirtual<T>(string name)
         {
-            var asset = GetAssetFromDevice<T>(name);
-
-            asset.OnPublishState += PublishAssetState;
-            if (asset.Is != null)
-                return asset;
-
-            asset.Is = "Virtual";
-            OnCreateAsset?.Invoke(this, asset);
+            var asset = GetAssetFromDevice<T>(name, "virtual");
             return asset;
         }
 
         /********** -----Private methods----- **********/
 
-        private Asset GetAssetFromDevice<T>(string name)
+        private Asset GetAssetFromDevice<T>(string name, string kind)
         {
-            foreach (var asset in Assets)
-            {
-                if (asset.Name == name)
-                    return asset;
-            }
+            if (Assets.ContainsKey(name))
+                return Assets[name];
 
             var profile = new Profile();
 
@@ -87,30 +85,23 @@ namespace AllThingsTalk
                 case TypeCode.Double:
                     profile.Type = "Number";
                     break;
+                default:
+                    throw new ArgumentException("Type must be from the list of used types", typeof(T).ToString());
             }
 
-            var newAsset = new Asset(name)
-            {
-                DeviceId = Id,
-                Profile = profile
-            };
+            var newAsset = new Asset(name, Id, profile, kind);
 
+            if (kind != "actuator")
+                newAsset.OnPublishState += PublishAssetState;
+
+            Assets[name] = newAsset;
+            OnCreateAsset?.Invoke(this, newAsset);
             return newAsset;
         }
 
-        private void PublishAssetState(object asset, AssetState state)
+        private void PublishAssetState(object assetObj, Asset asset)
         {
-            OnPublishState?.Invoke(this, state);
-        }
-
-        private string[] GetTopics()
-        {
-            var topics = new string[3];
-            var root = $"device/{Id}";
-            topics[0] = root + "/asset/+/command";
-            topics[1] = root + "/asset/+/event";
-            topics[2] = root + "/asset/+/state";
-            return topics;
+            OnPublishState?.Invoke(this, asset);
         }
     }
 }
