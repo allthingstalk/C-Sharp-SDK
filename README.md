@@ -1,12 +1,9 @@
 # C-Sharp-SDK
-C# client for connecting to AllThingsTalk platform.
-
 AllThingsTalk C# SDK provides C# APIs to manage and implement AllThingsTalk devices.
 
 # Installation
 
-1) Using NuGet package manager add AllThingsTalk client to your project (to be added)
-2) Download SDK and open in Visual Studio. Build the project and include built AllThingsTalk.dll in your project.
+Download SDK and open in Visual Studio. Build the project and include built AllThingsTalk.dll in your project.
 Add dependencies.
 
 # Dependencies
@@ -15,7 +12,7 @@ M2MqttDotnetCore 1.0.7 https://github.com/mohaqeq/paho.mqtt.m2mqtt
 Newtonsoft.Json 11.0.2 https://www.newtonsoft.com/json
 
 # Quickstart
-You should create an AllThingsTalk Maker account, and a simple device. All examples require DeviceID and DeviceToken, which can be found under Device Settings.
+Create an account in AllThingsTalk Maker, and create a device. All examples require DeviceID and DeviceToken, which can be found under Device Settings.
 
 ```C#
 using AllThingsTalk;
