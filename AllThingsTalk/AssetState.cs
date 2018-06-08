@@ -27,17 +27,11 @@ namespace AllThingsTalk
 
     public class AssetState
     {
-        // TODO: take this out. It is asset id.
-        //public string Id { get; set; }
-
         public State State { get; }
 
         // TODO: take this out
         internal AssetState(byte[] data)
         {
-            //var parts = args.Topic.Split(new char[] { '/' });
-            //Id = parts[3];
-
             var val = System.Text.Encoding.UTF8.GetString(data);
             JToken value;
 

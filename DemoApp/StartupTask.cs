@@ -48,16 +48,6 @@ namespace DemoApp
         public void OnDeviceCommand(object obj, Asset asset)
         {
 
-            switch (asset.Id)
-            {
-                case "Sensor2":
-                    break;
-                case "Color1":
-                    break;
-                default:
-                    break;
-            }
-
             Debug.WriteLine("Value is " + asset.State.State.Value);
             Debug.WriteLine("Value is " + asset.State.State.At);
             Debug.WriteLine("Value is " + asset.Id);
