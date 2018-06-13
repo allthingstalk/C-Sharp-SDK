@@ -57,3 +57,27 @@ Sensor is added by:
 var sensor = device.CreateSensor<int>("<sensorName>");
 ```
 where `int` defines the data type and `sensorName` is the identifier that has to be the same as the one used in maker, if you want to attach to an existing sensor.
+
+#### Creating an actuator
+
+```C#
+namespace ConsoleActuator
+{
+    internal class Program
+    {
+        public static void Main(string[] args)
+        {
+            var client = new Client("<DeviceToken>");
+            var counterDevice = client.AttachDeviceAsync("<DeviceId>");
+            var button = counterDevice.CreateActuator<bool>("Button");
+            button.OnCommand += OnCommandHandler;
+        }
+
+        private static void OnCommandHandler(object sender, Asset asset)
+        {
+            Console.WriteLine(asset.State.State.Value);
+        }
+    }
+}
+```
+This code will create an asset as actuator (if it is not already there), with name "Button" and type boolean, under Device we used to initialize the code. In Maker, we create a pinboard with this asset and can send boolean value to the app, which will be displayed in the console.
