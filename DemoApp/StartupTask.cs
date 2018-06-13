@@ -29,32 +29,23 @@ namespace DemoApp
     public sealed class StartupTask : IBackgroundTask
     {
         private BackgroundTaskDeferral _deferral;
+        //depends on your physical device
         private const int LedPin = 12;
         private GpioPin _pin;
 
         public void Run(IBackgroundTaskInstance taskInstance)
         {
             _deferral = taskInstance.GetDeferral();
-            //_logger = new Logger();
             InitGpio();
 
             var client = new Client("maker:4MPVlWZArchGW1VeVpnhn2PzyHu7dmLnGvPmcM5");
             var counterDevice = client.AttachDeviceAsync("Z8A5wkIq5XVM0dfMbZ1Jg4zH");
             var actuator = counterDevice.CreateActuator<bool>("Led");
             actuator.OnCommand += OnDeviceCommand;
-
         }
 
-        public void OnDeviceCommand(object obj, Asset asset)
+        private void OnDeviceCommand(object sender, Asset asset)
         {
-
-            Debug.WriteLine("Value is " + asset.State.State.Value);
-            Debug.WriteLine("Value is " + asset.State.State.At);
-            Debug.WriteLine("Value is " + asset.Id);
-            Debug.WriteLine("Value is " + asset.ToString());
-            Debug.WriteLine("Value is " + asset.State.State.Value.Type);
-            Debug.WriteLine("end");
-
             if ((bool)asset.State.State.Value)
             {
                 Debug.WriteLine("High");

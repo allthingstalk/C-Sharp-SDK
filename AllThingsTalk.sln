@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
 VisualStudioVersion = 15.0.27703.2000
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DemoApp", "DemoApp\DemoApp.csproj", "{1F65394E-6F35-4252-83EC-C3A0D7515612}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DemoLED", "DemoApp\DemoLED.csproj", "{1F65394E-6F35-4252-83EC-C3A0D7515612}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AllThingsTalk", "AllThingsTalk\AllThingsTalk.csproj", "{7F8FBDC1-B9E3-41A5-9245-A6955A871C50}"
 EndProject
