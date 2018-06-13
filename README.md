@@ -59,7 +59,7 @@ var sensor = device.CreateSensor<int>("<sensorName>");
 where `int` defines the data type and `sensorName` is the identifier that has to be the same as the one used in maker, if you want to attach to an existing sensor.
 
 #### Creating an actuator
-
+This is a complete, simplest code for adding an actuator.
 ```C#
 namespace ConsoleActuator
 {
@@ -81,3 +81,9 @@ namespace ConsoleActuator
 }
 ```
 This code will create an asset as actuator (if it is not already there), with name "Button" and type boolean, under Device we used to initialize the code. In Maker, we create a pinboard with this asset and can send boolean value to the app, which will be displayed in the console.
+
+#### Attach event handler to an actuator
+```C#
+button.OnCommand += OnCommandHandler;
+```
+Method you attach to an actuator will receive `Object sender`, which in this case is the `Device` that holds the `Asset` and `Asset` itself, from which you can retrieve `State`, which holds the `Value`, sent from `Maker`.
