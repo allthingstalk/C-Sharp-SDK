@@ -68,6 +68,10 @@ namespace AllThingsTalk
         }
 
         internal event EventHandler<Asset> OnPublishState;
+
+        /// <summary>
+        /// Event handler for actuator. Returns Device as object sender and Asset.
+        /// </summary>
         public event EventHandler<Asset> OnCommand;
 
         public void PublishState(object value)

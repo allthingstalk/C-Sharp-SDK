@@ -19,27 +19,24 @@
 * limitations under the License.
 */
 
+using AllThingsTalk;
+using System;
 
-namespace ConsoleApp1
+namespace ConsoleActuator
 {
-    using AllThingsTalk;
-    using System.Threading;
-
     internal class Program
     {
-        private static MyLogger _logger;
         public static void Main(string[] args)
         {
-            _logger = new MyLogger();
-            var client = new Client("DeviceToken", _logger);
-            var counterDevice = client.AttachDeviceAsync("DeviceId");
-            var counter = counterDevice.CreateSensor<int>("Counter");
+            var client = new Client("<DeviceToken>");
+            var counterDevice = client.AttachDeviceAsync("<DeviceId>");
+            var button = counterDevice.CreateActuator<bool>("Button");
+            button.OnCommand += OnCommandHandler;
+        }
 
-            for (var i = 0; i < 10; ++i)
-            {
-                counter.PublishState(i);
-                Thread.Sleep(2000);
-            }
+        private static void OnCommandHandler(object sender, Asset asset)
+        {
+            Console.WriteLine(asset.State.State.Value);
         }
     }
 }
