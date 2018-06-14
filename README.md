@@ -58,6 +58,13 @@ var sensor = device.CreateSensor<int>("<sensorName>");
 ```
 where `int` defines the data type and `sensorName` is the identifier that has to be the same as the one used in maker, if you want to attach to an existing sensor.
 
+#### Sending sensor data
+Data is sent through:
+```C#
+counter.PublishState(i);
+```
+which will update asset state in `Maker` platform, with value and timestamp.
+
 #### Creating an actuator
 This is a complete, simplest code for adding an actuator.
 ```C#
