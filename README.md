@@ -61,9 +61,9 @@ where `int` defines the data type and `sensorName` is the identifier that has to
 #### Sending sensor data
 Data is sent through:
 ```C#
-counter.PublishState(i);
+temperature.PublishState(23);
 ```
-which will update asset state in `Maker` platform, with value and timestamp.
+which will update `temperature` asset state in Maker with value `23`.
 
 #### Creating an actuator
 This is a complete, simplest code for adding an actuator.
