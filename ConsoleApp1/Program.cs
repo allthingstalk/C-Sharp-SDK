@@ -1,4 +1,5 @@
 ﻿/*
+*    _   _ _ _____ _    _              _____     _ _     ___ ___  _  _
 *   /_\ | | |_   _| |_ (_)_ _  __ _ __|_   _|_ _| | |__ / __|   \| |/ /
 *  / _ \| | | | | | ' \| | ' \/ _` (_-< | |/ _` | | / / \__ \ |) | ' <
 * /_/ \_\_|_| |_| |_||_|_|_||_\__, /__/ |_|\__,_|_|_\_\ |___/___/|_|\_\
@@ -19,27 +20,30 @@
 * limitations under the License.
 */
 
+using AllThingsTalk;
+using System;
+using System.Threading;
 
 namespace ConsoleApp1
 {
-    using AllThingsTalk;
-    using System.Threading;
-
-    internal class Program
+    internal static class Program
     {
         private static MyLogger _logger;
         public static void Main(string[] args)
         {
             _logger = new MyLogger();
-            var client = new Client("DeviceToken", _logger);
-            var counterDevice = client.AttachDeviceAsync("DeviceId");
+            var client = new Client("maker:4MPVlWZArchGW1VeVpnhn2PzyHu7dmLnGvPmcM5", _logger);
+            var counterDevice = client.AttachDeviceAsync("Z8A5wkIq5XVM0dfMbZ1Jg4zH").Result;
             var counter = counterDevice.CreateSensor<int>("Counter");
+            Thread.Sleep(2000);
 
             for (var i = 0; i < 10; ++i)
             {
                 counter.PublishState(i);
                 Thread.Sleep(2000);
             }
+
+            Console.ReadLine();
         }
     }
 }

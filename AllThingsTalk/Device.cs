@@ -1,4 +1,5 @@
 ﻿/*
+*    _   _ _ _____ _    _              _____     _ _     ___ ___  _  _
 *   /_\ | | |_   _| |_ (_)_ _  __ _ __|_   _|_ _| | |__ / __|   \| |/ /
 *  / _ \| | | | | | ' \| | ' \/ _` (_-< | |/ _` | | / / \__ \ |) | ' <
 * /_/ \_\_|_| |_| |_||_|_|_||_\__, /__/ |_|\__,_|_|_\_\ |___/___/|_|\_\
@@ -34,7 +35,7 @@ namespace AllThingsTalk
 
         public string Id { get; }
 
-        public Dictionary<string, Asset> Assets { get; set; }
+        public Dictionary<string, Asset> Assets { get; }
 
         internal event EventHandler<Asset> OnPublishState;
         internal event EventHandler<Asset> OnCreateAsset;
@@ -64,7 +65,11 @@ namespace AllThingsTalk
         private Asset GetAssetFromDevice<T>(string name, string kind)
         {
             if (Assets.ContainsKey(name))
-                return Assets[name];
+            {
+                var asset = Assets[name];
+                asset.OnPublishState += PublishAssetState;
+                return asset;
+            }
 
             var profile = new Profile();
 

@@ -1,4 +1,5 @@
 ﻿/*
+*    _   _ _ _____ _    _              _____     _ _     ___ ___  _  _
 *   /_\ | | |_   _| |_ (_)_ _  __ _ __|_   _|_ _| | |__ / __|   \| |/ /
 *  / _ \| | | | | | ' \| | ' \/ _` (_-< | |/ _` | | / / \__ \ |) | ' <
 * /_/ \_\_|_| |_| |_||_|_|_||_\__, /__/ |_|\__,_|_|_\_\ |___/___/|_|\_\
@@ -18,16 +19,12 @@
 * See the License for the specific language governing permissions and
 * limitations under the License.
 */
+using Newtonsoft.Json.Linq;
+using System;
+using System.Runtime.Serialization;
 
 namespace AllThingsTalk
 {
-    using System;
-    using System.Runtime.Serialization;
-    using Newtonsoft.Json.Linq;
-
-    /// <summary>
-    /// Asset
-    /// </summary>
     [DataContract]
     public class Asset
     {
@@ -57,10 +54,10 @@ namespace AllThingsTalk
 
         internal Asset(string name, string deviceId, Profile profile, string kind)
         {
-            this.Name = name;
-            this.DeviceId = deviceId;
-            this.Profile = profile;
-            this.Is = kind;
+            Name = name;
+            DeviceId = deviceId;
+            Profile = profile;
+            Is = kind;
         }
 
         internal Asset()
@@ -76,7 +73,7 @@ namespace AllThingsTalk
 
         public void PublishState(object value)
         {
-            this.State = new AssetState(JToken.FromObject(value));
+            State = new AssetState(JToken.FromObject(value));
             OnPublishState?.Invoke(this, this);
         }
 

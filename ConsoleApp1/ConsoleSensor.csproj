@@ -37,8 +37,8 @@
     <Reference Include="AllThingsTalk">
       <HintPath>..\AllThingsTalk\bin\Debug\netstandard2.0\AllThingsTalk.dll</HintPath>
     </Reference>
-    <Reference Include="M2Mqtt, Version=4.3.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\M2MqttDotnetCore.1.0.7\lib\netstandard2.0\M2Mqtt.dll</HintPath>
+    <Reference Include="MQTTnet, Version=2.8.2.0, Culture=neutral, PublicKeyToken=b69712f52770c0a7, processorArchitecture=MSIL">
+      <HintPath>..\packages\MQTTnet.2.8.2\lib\net461\MQTTnet.dll</HintPath>
     </Reference>
     <Reference Include="Newtonsoft.Json, Version=11.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
       <HintPath>..\packages\Newtonsoft.Json.11.0.2\lib\net45\Newtonsoft.Json.dll</HintPath>

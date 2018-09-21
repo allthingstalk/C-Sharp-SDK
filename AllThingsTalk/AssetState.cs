@@ -1,4 +1,5 @@
 ﻿/*
+*    _   _ _ _____ _    _              _____     _ _     ___ ___  _  _
 *   /_\ | | |_   _| |_ (_)_ _  __ _ __|_   _|_ _| | |__ / __|   \| |/ /
 *  / _ \| | | | | | ' \| | ' \/ _` (_-< | |/ _` | | / / \__ \ |) | ' <
 * /_/ \_\_|_| |_| |_||_|_|_||_\__, /__/ |_|\__,_|_|_\_\ |___/___/|_|\_\
@@ -23,16 +24,13 @@ namespace AllThingsTalk
 {
     using System;
     using Newtonsoft.Json.Linq;
-    using uPLibrary.Networking.M2Mqtt.Messages;
 
     public class AssetState
     {
         public State State { get; }
 
-        // TODO: take this out
-        internal AssetState(byte[] data)
+        internal AssetState(string val)
         {
-            var val = System.Text.Encoding.UTF8.GetString(data);
             JToken value;
 
             try
@@ -41,8 +39,8 @@ namespace AllThingsTalk
             }
             catch
             {
-                //compensate for strings: they are sent without ""
-                //for arduino, low bandwith, but strict json requires quotes
+                ////compensate for strings: they are sent without ""
+                ////for arduino, low bandwith, but strict json requires quotes
                 val = "\"" + val + "\"";
                 value = JToken.Parse(val);
             }
@@ -61,7 +59,6 @@ namespace AllThingsTalk
 
         internal AssetState()
         {
-
         }
     }
 

@@ -1,4 +1,5 @@
 ﻿/*
+*    _   _ _ _____ _    _              _____     _ _     ___ ___  _  _
 *   /_\ | | |_   _| |_ (_)_ _  __ _ __|_   _|_ _| | |__ / __|   \| |/ /
 *  / _ \| | | | | | ' \| | ' \/ _` (_-< | |/ _` | | / / \__ \ |) | ' <
 * /_/ \_\_|_| |_| |_||_|_|_||_\__, /__/ |_|\__,_|_|_\_\ |___/___/|_|\_\
@@ -18,14 +19,13 @@
 * See the License for the specific language governing permissions and
 * limitations under the License.
 */
+using System.Diagnostics;
+using AllThingsTalk;
+using Windows.ApplicationModel.Background;
+using Windows.Devices.Gpio;
 
 namespace DemoApp
 {
-    using System.Diagnostics;
-    using AllThingsTalk;
-    using Windows.ApplicationModel.Background;
-    using Windows.Devices.Gpio;
-
     public sealed class StartupTask : IBackgroundTask
     {
         private BackgroundTaskDeferral _deferral;
