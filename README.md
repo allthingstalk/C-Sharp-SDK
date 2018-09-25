@@ -7,7 +7,7 @@ Download SDK and open in Visual Studio. Build the project and include built AllT
 Add dependencies.
 
 # Dependencies
-M2MqttDotnetCore 1.0.7 https://github.com/mohaqeq/paho.mqtt.m2mqtt
+MQTTnet 2.8.2 https://github.com/chkr1011/MQTTnet
 
 Newtonsoft.Json 11.0.2 https://www.newtonsoft.com/json
 
@@ -25,8 +25,9 @@ namespace ConsoleApp
         static void Main(string[] args)
         {
             var client = new Client("<DeviceToken>");
-            var counterDevice = client.AttachDevice("<DeviceId>");
+            var counterDevice = client.AttachDeviceAsync("<DeviceId>").Result;
             var counter = counterDevice.CreateSensor<int>("Counter");
+            Thread.Sleep(2000);
             
             for (var i = 0; i < 10; ++i)
             {
@@ -45,7 +46,7 @@ To manage a device, you must obtain a DeviceID (which is an unique device identi
 
 ```C#
 var client = new Client("<DeviceToken>");
-var device = client.AttachDevice("<DeviceId>");
+var device = client.AttachDeviceAsync("<DeviceId>").Result;
 ```
 
 ### Creating assets
@@ -55,15 +56,16 @@ Assets are added to initialized device and if they don't exist in maker platform
 Sensor is added by:
 ```C#
 var sensor = device.CreateSensor<int>("<sensorName>");
+Thread.Sleep(2000);
 ```
-where `int` defines the data type and `sensorName` is the identifier that has to be the same as the one used in maker, if you want to attach to an existing sensor.
+where `int` defines the data type and `sensorName` is the identifier that has to be the same as the one used in maker, if you want to attach to an existing sensor. Be sure to add Thread.Sleep(2000) so there is enough time for sensor to be created before we send any data.
 
 #### Sending sensor data
 Data is sent through:
 ```C#
 temperature.PublishState(23);
 ```
-which will update `temperature` asset state in Maker with value `23`.
+which will update `temperature` asset state in Maker with value `23`. If we send the wrong type an exception will be thrown.
 
 #### Creating an actuator
 This is a complete, simplest code for adding an actuator.
@@ -75,7 +77,7 @@ namespace ConsoleActuator
         public static void Main(string[] args)
         {
             var client = new Client("<DeviceToken>");
-            var counterDevice = client.AttachDeviceAsync("<DeviceId>");
+            var counterDevice = client.AttachDeviceAsync("<DeviceId>").Result;
             var button = counterDevice.CreateActuator<bool>("Button");
             button.OnCommand += OnCommandHandler;
         }
