@@ -7,8 +7,8 @@
     <ProjectGuid>{1F65394E-6F35-4252-83EC-C3A0D7515612}</ProjectGuid>
     <OutputType>winmdobj</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>DemoApp</RootNamespace>
-    <AssemblyName>DemoApp</AssemblyName>
+    <RootNamespace>DemoLED</RootNamespace>
+    <AssemblyName>DemoLED</AssemblyName>
     <DefaultLanguage>en-US</DefaultLanguage>
     <TargetPlatformIdentifier>UAP</TargetPlatformIdentifier>
     <TargetPlatformVersion>10.0.17134.0</TargetPlatformVersion>
@@ -130,11 +130,11 @@
     </Content>
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="M2MqttDotnetCore">
-      <Version>1.0.7</Version>
-    </PackageReference>
     <PackageReference Include="Microsoft.NETCore.UniversalWindowsPlatform">
       <Version>6.1.4</Version>
+    </PackageReference>
+    <PackageReference Include="MQTTnet">
+      <Version>2.8.2</Version>
     </PackageReference>
     <PackageReference Include="Newtonsoft.Json">
       <Version>11.0.2</Version>
@@ -142,7 +142,7 @@
   </ItemGroup>
   <ItemGroup>
     <Reference Include="AllThingsTalk">
-      <HintPath>..\AllThingsTalk\bin\Debug\netstandard2.0\AllThingsTalk.dll</HintPath>
+      <HintPath>..\..\AllThingsTalk\bin\Debug\netstandard2.0\AllThingsTalk.dll</HintPath>
     </Reference>
   </ItemGroup>
   <PropertyGroup Condition=" '$(VisualStudioVersion)' == '' or '$(VisualStudioVersion)' &lt; '15.0' ">

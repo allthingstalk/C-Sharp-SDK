@@ -24,7 +24,7 @@ using AllThingsTalk;
 //using NLog;
 using System;
 
-namespace ConsoleApp1
+namespace ConsoleSensor
 {
     public class MyLogger: ILogger
     {

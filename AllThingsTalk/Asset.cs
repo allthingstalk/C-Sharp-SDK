@@ -73,6 +73,37 @@ namespace AllThingsTalk
 
         public void PublishState(object value)
         {
+            var rightType = true;
+            var type = value.GetType();
+            Console.WriteLine(Profile.Type);
+
+            switch (this.Profile.Type)
+            {
+                case "integer":
+                    if (type != typeof(int))
+                        rightType = false;
+                    break;
+                case "boolean":
+                    if (type != typeof(bool))
+                        rightType = false;
+                    break;
+                case "object":
+                    if (type != typeof(object))
+                        rightType = false;
+                    break;
+                case "string":
+                    if (type != typeof(string))
+                        rightType = false;
+                    break;
+                case "number":
+                    if (type != typeof(double))
+                        rightType = false;
+                    break;       
+            }
+
+            if(!rightType)
+                throw new ArgumentException("Value type is not correct for this asset!");
+
             State = new AssetState(JToken.FromObject(value));
             OnPublishState?.Invoke(this, this);
         }

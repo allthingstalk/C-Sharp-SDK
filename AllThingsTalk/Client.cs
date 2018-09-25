@@ -141,7 +141,6 @@ namespace AllThingsTalk
 
                     foreach (var asset in assets)
                     {
-                        Console.WriteLine("Name" + asset.Id);
                         _logger?.Trace("New asset {0} added from maker", asset.Name);
                         device.Assets[asset.Name] = asset;
                     }

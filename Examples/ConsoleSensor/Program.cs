@@ -24,7 +24,7 @@ using AllThingsTalk;
 using System;
 using System.Threading;
 
-namespace ConsoleApp1
+namespace ConsoleSensor
 {
     internal static class Program
     {
