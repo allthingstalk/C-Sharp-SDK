@@ -26,7 +26,7 @@ using System.Runtime.Serialization;
 namespace AllThingsTalk
 {
     [DataContract]
-    public class Asset
+    public class AssetData
     {
         [DataMember]
         public string Id { get; internal set; }
@@ -52,66 +52,52 @@ namespace AllThingsTalk
         [DataMember]
         public AssetState State { get; internal set; }
 
-        internal Asset(string name, string deviceId, Profile profile, string kind)
-        {
-            Name = name;
-            DeviceId = deviceId;
-            Profile = profile;
-            Is = kind;
-        }
-
-        internal Asset()
+        internal AssetData()
         {
         }
+    }
 
-        internal event EventHandler<Asset> OnPublishState;
+    public abstract class Asset
+    {
+        public string Name { get; internal set; }
+        public string DeviceId { get; internal set; }
+        public string Is { get; internal set; }
+        public Profile Profile { get; internal set; }
+        public AssetState State { get; internal set; }
+        public bool Attached { get; internal set; }
+        internal Device _device;
 
-        /// <summary>
-        /// Event handler for actuator. Returns Device as object sender and Asset.
-        /// </summary>
         public event EventHandler<Asset> OnCommand;
-
-        public void PublishState(object value)
+        internal void SetDevice(Device device)
         {
-            var rightType = true;
-            var type = value.GetType();
-            Console.WriteLine(Profile.Type);
-
-            switch (this.Profile.Type)
-            {
-                case "integer":
-                    if (type != typeof(int))
-                        rightType = false;
-                    break;
-                case "boolean":
-                    if (type != typeof(bool))
-                        rightType = false;
-                    break;
-                case "object":
-                    if (type != typeof(object))
-                        rightType = false;
-                    break;
-                case "string":
-                    if (type != typeof(string))
-                        rightType = false;
-                    break;
-                case "number":
-                    if (type != typeof(double))
-                        rightType = false;
-                    break;       
-            }
-
-            if(!rightType)
-                throw new ArgumentException("Value type is not correct for this asset!");
-
-            State = new AssetState(JToken.FromObject(value));
-            OnPublishState?.Invoke(this, this);
+            _device = device;
         }
-
         internal void OnAssetState(AssetState state)
         {
             State = state;
             OnCommand?.Invoke(this, this);
+        }
+    }
+
+    public class Asset<T> : Asset
+    {
+        internal Asset(Device device, string name, Profile profile, string kind)
+        {
+            Name = name;
+            DeviceId = device.Id;
+            Profile = profile;
+            Is = kind;
+            Attached = false;
+            SetDevice(device);
+        }
+
+        public void PublishState(T value)
+        {
+            if (Is == "actuator")
+                return;
+
+            State = new AssetState(JToken.FromObject(value));
+            _device.Client.PublishAssetState(DeviceId, Name, State);
         }
     }
 

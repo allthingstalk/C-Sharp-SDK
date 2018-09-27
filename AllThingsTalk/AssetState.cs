@@ -19,12 +19,11 @@
 * See the License for the specific language governing permissions and
 * limitations under the License.
 */
+using System;
+using Newtonsoft.Json.Linq;
 
 namespace AllThingsTalk
 {
-    using System;
-    using Newtonsoft.Json.Linq;
-
     public class AssetState
     {
         public State State { get; }

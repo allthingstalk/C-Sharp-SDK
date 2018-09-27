@@ -30,7 +30,7 @@ namespace ConsoleActuator
         public static void Main(string[] args)
         {
             var client = new Client("maker:4MPVlWZArchGW1VeVpnhn2PzyHu7dmLnGvPmcM5");
-            var counterDevice = client.AttachDeviceAsync("Z8A5wkIq5XVM0dfMbZ1Jg4zH").Result;
+            var counterDevice = client.AttachDevice("Z8A5wkIq5XVM0dfMbZ1Jg4zH");
             var button = counterDevice.CreateActuator<bool>("Button");
             button.OnCommand += OnCommandHandler;
             Console.ReadLine();

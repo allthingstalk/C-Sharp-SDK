@@ -19,42 +19,70 @@
 * See the License for the specific language governing permissions and
 * limitations under the License.
 */
+using System;
+using System.Collections.Generic;
 
 namespace AllThingsTalk
 {
-    using System;
-    using System.Collections.Generic;
-
     public class Device
     {
-        internal Device(string deviceId)
+        internal Device(Client client, string deviceId)
         {
+            Client = client;
             Id = deviceId;
             Assets = new Dictionary<string, Asset>();
+            AssetDatas = new Dictionary<string, AssetData>();
         }
 
         public string Id { get; }
 
-        public Dictionary<string, Asset> Assets { get; }
+        public readonly Client Client;
 
-        internal event EventHandler<Asset> OnPublishState;
-        internal event EventHandler<Asset> OnCreateAsset;
+        public Dictionary<string, Asset> Assets { get; }
+        public Dictionary<string, AssetData> AssetDatas { get; }
 
         /********** -----Public methods----- **********/
+        internal void CreateFromAssetData(AssetData assetData)
+        {
+            Asset asset;
+            switch (assetData.Profile.Type)
+            {
+                case "integer":
+                    asset = GetAssetFromDevice<int>(assetData.Name, assetData.Is);
+                    Assets[assetData.Name] = asset;
+                    break;
+                case "number":
+                    asset = GetAssetFromDevice<double>(assetData.Name, assetData.Is);
+                    Assets[assetData.Name] = asset;
+                    break;
+                case "boolean":
+                    asset = GetAssetFromDevice<bool>(assetData.Name, assetData.Is);
+                    Assets[assetData.Name] = asset;
+                    break;
+                case "string":
+                    asset = GetAssetFromDevice<string>(assetData.Name, assetData.Is);
+                    Assets[assetData.Name] = asset;
+                    break;
+                case "object":
+                    asset = GetAssetFromDevice<object>(assetData.Name, assetData.Is);
+                    Assets[assetData.Name] = asset;
+                    break;
+            }
+        }
 
-        public Asset CreateSensor<T>(string name)
+        public Asset<T> CreateSensor<T>(string name)
         {
             var asset = GetAssetFromDevice<T>(name, "sensor");
             return asset;
         }
 
-        public Asset CreateActuator<T>(string name)
+        public Asset<T> CreateActuator<T>(string name)
         {
             var asset = GetAssetFromDevice<T>(name, "actuator");
             return asset;
         }
 
-        public Asset CreateVirtual<T>(string name)
+        public Asset<T> CreateVirtual<T>(string name)
         {
             var asset = GetAssetFromDevice<T>(name, "virtual");
             return asset;
@@ -62,13 +90,17 @@ namespace AllThingsTalk
 
         /********** -----Private methods----- **********/
 
-        private Asset GetAssetFromDevice<T>(string name, string kind)
+        private Asset<T> GetAssetFromDevice<T>(string name, string kind)
         {
             if (Assets.ContainsKey(name))
             {
                 var asset = Assets[name];
-                asset.OnPublishState += PublishAssetState;
-                return asset;
+                if (asset.Attached)
+                    return null;
+
+                asset.SetDevice(this);
+                asset.Attached = true;
+                return asset as Asset<T>;
             }
 
             var profile = new Profile();
@@ -94,19 +126,13 @@ namespace AllThingsTalk
                     throw new ArgumentException("Type must be from the list of used types", typeof(T).ToString());
             }
 
-            var newAsset = new Asset(name, Id, profile, kind);
-
-            if (kind != "actuator")
-                newAsset.OnPublishState += PublishAssetState;
+            var newAsset = new Asset<T>(this, name, profile, kind);
 
             Assets[name] = newAsset;
-            OnCreateAsset?.Invoke(this, newAsset);
-            return newAsset;
-        }
+            if(!AssetDatas.ContainsKey(name))
+                Client.CreateAsset(this, newAsset);
 
-        private void PublishAssetState(object assetObj, Asset asset)
-        {
-            OnPublishState?.Invoke(this, asset);
+            return newAsset;
         }
     }
 }

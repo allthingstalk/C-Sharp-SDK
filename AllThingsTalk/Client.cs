@@ -35,13 +35,7 @@ using System.Threading.Tasks;
 
 namespace AllThingsTalk
 {
-    public interface IClientBase
-    {
-        Task<Device> AttachDeviceAsync(string deviceId);
-        ////AssetState GetAssetState(string deviceId, string assetName);
-    }
-
-    public class Client : IClientBase
+    public class Client
     {
         private Dictionary<string, Device> Devices { get; }
         private IMqttClient _mqtt;
@@ -75,21 +69,17 @@ namespace AllThingsTalk
 
         internal event EventHandler ConnectionReset;
 
-        public async Task<Device> AttachDeviceAsync(string deviceId)
+        public Device AttachDevice(string deviceId)
         {
-            var device = new Device(deviceId);
+            var device = new Device(this, deviceId);
             Devices[deviceId] = device;
-            device.OnPublishState += PublishAssetState;
-            device.OnCreateAsset += CreateAsset;
-            await GetAssets(deviceId);
-            await Subscribe(deviceId);
+            Task.Run(() => GetAssets(deviceId)).Wait();
+            Task.Run(() => Subscribe(deviceId)).Wait();
             return device;
         }
 
-        private void CreateAsset(object deviceObj, Asset asset)
+        internal void CreateAsset(Device device, Asset asset)
         {
-            var device = (Device)deviceObj;
-
             var jObj = new JObject();
             try
             {
@@ -108,7 +98,7 @@ namespace AllThingsTalk
                 {
                     var contentResult = Task.Run(() => result.Content.ReadAsStringAsync()).Result;
                     result.EnsureSuccessStatusCode();
-                    var createdAsset = JsonConvert.DeserializeObject<Asset>(contentResult);
+                    var createdAsset = JsonConvert.DeserializeObject<AssetData>(contentResult);
                     _logger?.Trace("New asset {0} created in maker", createdAsset.Name);
 
                 }
@@ -134,7 +124,7 @@ namespace AllThingsTalk
                 {
                     var stringResult = await result.Content.ReadAsStringAsync();
                     result.EnsureSuccessStatusCode();
-                    var assets = JsonConvert.DeserializeObject<List<Asset>>(stringResult);
+                    var assets = JsonConvert.DeserializeObject<List<AssetData>>(stringResult);
 
                     if (assets.Count == 0)
                         return;
@@ -142,7 +132,8 @@ namespace AllThingsTalk
                     foreach (var asset in assets)
                     {
                         _logger?.Trace("New asset {0} added from maker", asset.Name);
-                        device.Assets[asset.Name] = asset;
+                        device.AssetDatas[asset.Name] = asset;
+                        device.CreateFromAssetData(asset);
                     }
                 }
             }
@@ -159,6 +150,7 @@ namespace AllThingsTalk
         private void InitMqtt()
         {
             // TODO: check _mqtt url for any possible errors
+            _logger?.Trace("Mqtt initialized");
             var factory = new MqttFactory();
             _mqtt = factory.CreateMqttClient();
             var clientId = Guid.NewGuid().ToString().Substring(0, 22);
@@ -172,16 +164,14 @@ namespace AllThingsTalk
             Task.Run(() => _mqtt.ConnectAsync(_mqttOptions)).Wait();
 
             _mqtt.Disconnected += OnMqttDisconnected;
-
             _mqtt.ApplicationMessageReceived += OnMqttMessageReceived;
-
             _mqtt.Connected += OnMqttConnected;
         }
 
         private void InitHttp()
         {
             // TODO: Check http url for any possible errors
-            _logger?.Trace("http initialized");
+            _logger?.Trace("Http initialized");
             var token = $"Bearer {_token}";
             _http = new HttpClient
             {
@@ -196,7 +186,7 @@ namespace AllThingsTalk
 
         private void OnMqttMessageReceived(object sender, MqttApplicationMessageReceivedEventArgs e)
         {
-            _logger?.Trace("_mqtt message received topic: {0}, content: {1}", e.ApplicationMessage.Topic, Encoding.UTF8.GetString(e.ApplicationMessage.Payload));
+            _logger?.Trace("Mqtt message received topic: {0}, content: {1}", e.ApplicationMessage.Topic, Encoding.UTF8.GetString(e.ApplicationMessage.Payload));
 
             try
             {
@@ -218,13 +208,13 @@ namespace AllThingsTalk
             }
             catch (Exception ex)
             {
-                _logger?.Error("Problem with incomming _mqtt message", ex.ToString());
+                _logger?.Error("Problem with incoming Mqtt message", ex.ToString());
             }
         }
 
         private async void OnMqttConnected(object sender, MqttClientConnectedEventArgs e)
         {
-            _logger?.Trace("_mqtt connected");
+            _logger?.Trace("Mqtt connected");
 
             foreach (var device in Devices)
             {
@@ -236,7 +226,7 @@ namespace AllThingsTalk
 
         private async void OnMqttDisconnected(object sender, EventArgs e)
         {
-            _logger?.Error("_mqtt connection lost, recreating...");
+            _logger?.Error("Mqtt connection lost, recreating...");
 
             await Task.Delay(TimeSpan.FromSeconds(5));
 
@@ -246,10 +236,10 @@ namespace AllThingsTalk
             }
             catch
             {
-                _logger?.Error("Error on _mqtt reconnection");
+                _logger?.Error("Error on Mqtt reconnection");
             }
 
-            _logger?.Trace("_mqtt connection recreated, resubscribing...");
+            _logger?.Trace("Mqtt connection recreated, resubscribing...");
         }
 
         private async Task Subscribe(string deviceId)
@@ -259,7 +249,7 @@ namespace AllThingsTalk
             topicFilters.AddRange(topics.Select(topic => new TopicFilter(topic, MqttQualityOfServiceLevel.AtMostOnce)));
             await _mqtt.SubscribeAsync(topicFilters.ToArray());
 
-            _logger?.Trace("_mqtt subscribed");
+            _logger?.Trace("Mqtt subscribed");
         }
 
         private static string[] GetTopics(string deviceId)
@@ -272,11 +262,10 @@ namespace AllThingsTalk
             return topics;
         }
 
-        private void PublishAssetState(object device, Asset asset)
+        internal void PublishAssetState(string deviceId, string name, AssetState state)
         {
-            var deviceId = ((Device)device).Id;
-            var toSend = JObject.FromObject(asset.State.State).ToString();
-            var topic = $"device/{deviceId}/asset/{asset.Name}/state";
+            var toSend = JObject.FromObject(state.State).ToString();
+            var topic = $"device/{deviceId}/asset/{name}/state";
 
             var message = new MqttApplicationMessageBuilder()
                 .WithTopic(topic)
@@ -286,11 +275,11 @@ namespace AllThingsTalk
             if (_mqtt.IsConnected)
             {
                 Task.Run(() => _mqtt.PublishAsync(message)).Wait();
-                _logger?.Trace("message published, topic: {0}, content: {1}", topic, toSend);
+                _logger?.Trace("Message published, topic: {0}, content: {1}", topic, toSend);
             }
             else
             {
-                _logger?.Error("_mqtt not connected");
+                _logger?.Error("Mqtt not connected");
             }
         }
     }

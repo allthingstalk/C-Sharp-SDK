@@ -39,7 +39,7 @@ namespace DemoLED
             InitGpio();
 
             var client = new Client("maker:4MPVlWZArchGW1VeVpnhn2PzyHu7dmLnGvPmcM5");
-            var counterDevice = client.AttachDeviceAsync("Z8A5wkIq5XVM0dfMbZ1Jg4zH").Result;
+            var counterDevice = client.AttachDevice("Z8A5wkIq5XVM0dfMbZ1Jg4zH");
             var actuator = counterDevice.CreateActuator<bool>("Led");
             actuator.OnCommand += OnDeviceCommand;
         }
