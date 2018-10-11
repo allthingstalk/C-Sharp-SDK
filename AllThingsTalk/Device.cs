@@ -21,11 +21,17 @@
 */
 using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace AllThingsTalk
 {
     public class Device
     {
+        public string Id { get; }
+        internal readonly Client Client;
+        internal Dictionary<string, Asset> Assets { get; }
+        internal Dictionary<string, AssetData> AssetDatas { get; }
+
         internal Device(Client client, string deviceId)
         {
             Client = client;
@@ -34,63 +40,77 @@ namespace AllThingsTalk
             AssetDatas = new Dictionary<string, AssetData>();
         }
 
-        public string Id { get; }
-
-        public readonly Client Client;
-
-        public Dictionary<string, Asset> Assets { get; }
-        public Dictionary<string, AssetData> AssetDatas { get; }
-
         /********** -----Public methods----- **********/
-        internal void CreateFromAssetData(AssetData assetData)
+        /// <summary>
+        /// Create a sensor with specific type. If it isn't already defined in `maker` it will also be created there.
+        /// Type can be: int, double, string, bool, object
+        /// </summary>
+        /// <typeparam name="T">Type</typeparam>
+        /// <param name="name">Sensor name</param>
+        /// <returns>Sensor</returns>
+        public async Task<Asset<T>> CreateSensorAsync<T>(string name)
+        {
+            var asset = await GetAssetFromDeviceAsync<T>(name, "sensor").ConfigureAwait(false);
+            return asset;
+        }
+
+        /// <summary>
+        /// Create an actuator with specific type. If it isn't already defined in `maker` it will also be created there.
+        /// Type can be: int, double, string, bool, object
+        /// </summary>
+        /// <typeparam name="T">Type</typeparam>
+        /// <param name="name">Actuator name</param>
+        /// <returns>Actuator</returns>
+        public async Task<Asset<T>> CreateActuatorAsync<T>(string name)
+        {
+            var asset = await GetAssetFromDeviceAsync<T>(name, "actuator").ConfigureAwait(false);
+            return asset;
+        }
+
+        /// <summary>
+        /// Create a virtual asset with specific type. If it isn't already defined in `maker` it will also be created there.
+        /// Type can be: int, double, string, bool, object
+        /// </summary>
+        /// <typeparam name="T">Type</typeparam>
+        /// <param name="name">Virtual asset name</param>
+        /// <returns>Virtual asset</returns>
+        public async Task<Asset<T>> CreateVirtualAsync<T>(string name)
+        {
+            var asset = await GetAssetFromDeviceAsync<T>(name, "virtual").ConfigureAwait(false);
+            return asset;
+        }
+
+        /********** -----Internal methods----- **********/
+        internal async Task CreateFromAssetDataAsync(AssetData assetData)
         {
             Asset asset;
             switch (assetData.Profile.Type)
             {
                 case "integer":
-                    asset = GetAssetFromDevice<int>(assetData.Name, assetData.Is);
+                    asset = await GetAssetFromDeviceAsync<int>(assetData.Name, assetData.Is).ConfigureAwait(false);
                     Assets[assetData.Name] = asset;
                     break;
                 case "number":
-                    asset = GetAssetFromDevice<double>(assetData.Name, assetData.Is);
+                    asset = await GetAssetFromDeviceAsync<double>(assetData.Name, assetData.Is).ConfigureAwait(false);
                     Assets[assetData.Name] = asset;
                     break;
                 case "boolean":
-                    asset = GetAssetFromDevice<bool>(assetData.Name, assetData.Is);
+                    asset = await GetAssetFromDeviceAsync<bool>(assetData.Name, assetData.Is).ConfigureAwait(false);
                     Assets[assetData.Name] = asset;
                     break;
                 case "string":
-                    asset = GetAssetFromDevice<string>(assetData.Name, assetData.Is);
+                    asset = await GetAssetFromDeviceAsync<string>(assetData.Name, assetData.Is).ConfigureAwait(false);
                     Assets[assetData.Name] = asset;
                     break;
                 case "object":
-                    asset = GetAssetFromDevice<object>(assetData.Name, assetData.Is);
+                    asset = await GetAssetFromDeviceAsync<object>(assetData.Name, assetData.Is).ConfigureAwait(false);
                     Assets[assetData.Name] = asset;
                     break;
             }
         }
 
-        public Asset<T> CreateSensor<T>(string name)
-        {
-            var asset = GetAssetFromDevice<T>(name, "sensor");
-            return asset;
-        }
-
-        public Asset<T> CreateActuator<T>(string name)
-        {
-            var asset = GetAssetFromDevice<T>(name, "actuator");
-            return asset;
-        }
-
-        public Asset<T> CreateVirtual<T>(string name)
-        {
-            var asset = GetAssetFromDevice<T>(name, "virtual");
-            return asset;
-        }
-
         /********** -----Private methods----- **********/
-
-        private Asset<T> GetAssetFromDevice<T>(string name, string kind)
+        private async Task<Asset<T>> GetAssetFromDeviceAsync<T>(string name, string kind)
         {
             if (Assets.ContainsKey(name))
             {
@@ -129,8 +149,8 @@ namespace AllThingsTalk
             var newAsset = new Asset<T>(this, name, profile, kind);
 
             Assets[name] = newAsset;
-            if(!AssetDatas.ContainsKey(name))
-                Client.CreateAsset(this, newAsset);
+            if (!AssetDatas.ContainsKey(name))
+                await Client.CreateAssetAsync(this, newAsset).ConfigureAwait(false);
 
             return newAsset;
         }

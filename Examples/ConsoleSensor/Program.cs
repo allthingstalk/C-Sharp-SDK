@@ -23,22 +23,23 @@
 using AllThingsTalk;
 using System;
 using System.Threading;
+using System.Threading.Tasks;
 
 namespace ConsoleSensor
 {
-    internal static class Program
+    class Program
     {
         private static MyLogger _logger;
-        public static void Main(string[] args)
+        static async Task Main(string[] args)
         {
             _logger = new MyLogger();
-            var client = new Client("maker:4MPVlWZArchGW1VeVpnhn2PzyHu7dmLnGvPmcM5", _logger);
-            var counterDevice = client.AttachDevice("Z8A5wkIq5XVM0dfMbZ1Jg4zH");
-            var counter = counterDevice.CreateSensor<int>("Counter");
+            var client = new Client("<DeviceToken>", _logger);
+            var counterDevice = await client.AttachDeviceAsync("<DeviceId>");
+            var counter = await counterDevice.CreateSensorAsync<int>("Counter");
 
             for (var i = 0; i < 10; ++i)
             {
-                counter.PublishState(i);
+                await counter.PublishStateAsync(i);
                 Thread.Sleep(2000);
             }
 

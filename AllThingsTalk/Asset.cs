@@ -22,11 +22,12 @@
 using Newtonsoft.Json.Linq;
 using System;
 using System.Runtime.Serialization;
+using System.Threading.Tasks;
 
 namespace AllThingsTalk
 {
     [DataContract]
-    public class AssetData
+    internal class AssetData
     {
         [DataMember]
         public string Id { get; internal set; }
@@ -67,11 +68,16 @@ namespace AllThingsTalk
         public bool Attached { get; internal set; }
         internal Device _device;
 
+        /// <summary>
+        /// Attach to receive actuation from the server
+        /// </summary>
         public event EventHandler<Asset> OnCommand;
+
         internal void SetDevice(Device device)
         {
             _device = device;
         }
+
         internal void OnAssetState(AssetState state)
         {
             State = state;
@@ -91,13 +97,18 @@ namespace AllThingsTalk
             SetDevice(device);
         }
 
-        public void PublishState(T value)
+        /// <summary>
+        /// Publish sensor state to `maker`.
+        /// </summary>
+        /// <param name="value">Sensor value</param>
+        /// <returns></returns>
+        public async Task PublishStateAsync(T value)
         {
             if (Is == "actuator")
                 return;
 
             State = new AssetState(JToken.FromObject(value));
-            _device.Client.PublishAssetState(DeviceId, Name, State);
+            await _device.Client.PublishAssetStateAsync(DeviceId, Name, State).ConfigureAwait(false);
         }
     }
 

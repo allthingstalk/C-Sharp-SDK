@@ -20,10 +20,12 @@
 * limitations under the License.
 */
 
+using System;
+
 namespace AllThingsTalk
 {
     /// <summary>
-    /// Implement this interface so that the <see cref="Device"/> class can log trace, info, warning and error messages to the desired output.
+    /// Implement this interface so that the <see cref="Client"/> class can log trace, info, warning and error messages to the desired output.
     /// </summary>
     public interface ILogger
     {
@@ -54,5 +56,27 @@ namespace AllThingsTalk
         /// <param name="message">The message to log.</param>
         /// <param name="args">any arguments to replace in the message.</param>
         void Error(string message, params object[] args);
+    }
+
+    /// <summary>
+    /// Empty logger.
+    /// </summary>
+    public class NullLogger : ILogger
+    {
+        public void Trace(string message, params object[] args)
+        {
+        }
+
+        public void Info(string message, params object[] args)
+        {
+        }
+
+        public void Warn(string message, params object[] args)
+        {
+        }
+
+        public void Error(string message, params object[] args)
+        {
+        }
     }
 }

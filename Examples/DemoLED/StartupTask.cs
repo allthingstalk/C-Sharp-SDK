@@ -19,8 +19,8 @@
 * See the License for the specific language governing permissions and
 * limitations under the License.
 */
-using System.Diagnostics;
 using AllThingsTalk;
+using System.Diagnostics;
 using Windows.ApplicationModel.Background;
 using Windows.Devices.Gpio;
 
@@ -37,10 +37,14 @@ namespace DemoLED
         {
             _deferral = taskInstance.GetDeferral();
             InitGpio();
+            InitializeDevice();
+        }
 
-            var client = new Client("maker:4MPVlWZArchGW1VeVpnhn2PzyHu7dmLnGvPmcM5");
-            var counterDevice = client.AttachDevice("Z8A5wkIq5XVM0dfMbZ1Jg4zH");
-            var actuator = counterDevice.CreateActuator<bool>("Led");
+        private async void InitializeDevice()
+        {
+            var client = new Client("<DeviceToken>");
+            var counterDevice = await client.AttachDeviceAsync("<DeviceId>");
+            var actuator = await counterDevice.CreateActuatorAsync<bool>("Led");
             actuator.OnCommand += OnDeviceCommand;
         }
 
