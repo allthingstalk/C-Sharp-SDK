@@ -2,7 +2,8 @@
 AllThingsTalk C# SDK provides C# APIs to manage and implement AllThingsTalk devices.
 
 # Installation
-
+Install NuGet from https://www.nuget.org/packages/AllThingsTalk/
+or
 Download SDK and open in Visual Studio. Build the project and include built AllThingsTalk.dll in your project.
 Add dependencies.
 
