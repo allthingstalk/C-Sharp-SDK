@@ -17,24 +17,27 @@ Create an account in AllThingsTalk Maker, and create a device. All examples requ
 
 ```C#
 using AllThingsTalk;
+using System;
 using System.Threading;
+using System.Threading.Tasks;
 
-namespace ConsoleApp
+namespace ConsoleSensor
 {
     class Program
     {
-        static void Main(string[] args)
+        static async Task Main(string[] args)
         {
             var client = new Client("<DeviceToken>");
-            var counterDevice = client.AttachDeviceAsync("<DeviceId>").Result;
-            var counter = counterDevice.CreateSensor<int>("Counter");
-            Thread.Sleep(2000);
-            
+            var counterDevice = await client.AttachDeviceAsync("<DeviceId>");
+            var counter = await counterDevice.CreateSensorAsync<int>("Counter");
+
             for (var i = 0; i < 10; ++i)
             {
-                counter.PublishState(i);
+                await counter.PublishStateAsync(i);
                 Thread.Sleep(2000);
             }
+
+            Console.ReadLine();
         }
     }
 }
@@ -47,7 +50,7 @@ To manage a device, you must obtain a DeviceID (which is an unique device identi
 
 ```C#
 var client = new Client("<DeviceToken>");
-var device = client.AttachDeviceAsync("<DeviceId>").Result;
+var device = = await client.AttachDeviceAsync("<DeviceId>");
 ```
 
 ### Creating assets
@@ -56,31 +59,35 @@ Assets are added to initialized device and if they don't exist in maker platform
 #### Creating a sensor
 Sensor is added by:
 ```C#
-var sensor = device.CreateSensor<int>("<sensorName>");
-Thread.Sleep(2000);
+var sensor = await counterDevice.CreateSensorAsync<int>("Counter");
 ```
 where `int` defines the data type and `sensorName` is the identifier that has to be the same as the one used in maker, if you want to attach to an existing sensor. Be sure to add Thread.Sleep(2000) so there is enough time for sensor to be created before we send any data.
 
 #### Sending sensor data
 Data is sent through:
 ```C#
-temperature.PublishState(23);
+await temperature.PublishStateAsync(23);
 ```
 which will update `temperature` asset state in Maker with value `23`. If we send the wrong type an exception will be thrown.
 
 #### Creating an actuator
 This is a complete, simplest code for adding an actuator.
 ```C#
+using AllThingsTalk;
+using System;
+using System.Threading.Tasks;
+
 namespace ConsoleActuator
 {
-    internal class Program
+    class Program
     {
-        public static void Main(string[] args)
+        static async Task Main(string[] args)
         {
             var client = new Client("<DeviceToken>");
-            var counterDevice = client.AttachDeviceAsync("<DeviceId>").Result;
-            var button = counterDevice.CreateActuator<bool>("Button");
+            var counterDevice = await client.AttachDeviceAsync("<DeviceId>");
+            var button = await counterDevice.CreateActuatorAsync<bool>("Button");
             button.OnCommand += OnCommandHandler;
+            Console.ReadLine();
         }
 
         private static void OnCommandHandler(object sender, Asset asset)
